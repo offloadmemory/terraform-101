@@ -10,6 +10,7 @@ data "terraform_remote_state" "network" {
     bucket         = "tfstate-${var.env_name}"
     key            = "network/terraform.tfstate"
     region         = "us-east-1"
+    profile        = var.profile
     dynamodb_table = "tfstate-${var.env_name}-lock"
   }
 }

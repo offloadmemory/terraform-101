@@ -36,6 +36,8 @@ resource "aws_internet_gateway" "this" {
 resource "aws_eip" "nat" {
   count  = var.nat_gateway_count
   domain = "vpc"
+
+  tags = merge(var.tags, { Name = "${var.env_name}-nat-eip-${count.index + 1}" })
 }
 
 resource "aws_nat_gateway" "this" {

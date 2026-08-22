@@ -31,3 +31,4 @@ See `docs/DEMO-SCRIPT.md` for the narration, `docs/GAPS.md` for the gap table.
     make fmt        # terraform fmt --recursive
     make validate   # init -backend=false + validate on every component
     make plan       # init + plan on every component (needs creds)
+    make destroy    # teardown every component, reverse order (needs creds)

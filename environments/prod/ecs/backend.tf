@@ -3,6 +3,7 @@ terraform {
     bucket         = "tfstate-prod"
     key            = "ecs/terraform.tfstate"
     region         = "us-east-1"
+    profile        = "prod"
     dynamodb_table = "tfstate-prod-lock"
     encrypt        = true
   }

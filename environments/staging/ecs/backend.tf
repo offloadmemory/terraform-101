@@ -3,6 +3,7 @@ terraform {
     bucket         = "tfstate-staging"
     key            = "ecs/terraform.tfstate"
     region         = "us-east-1"
+    profile        = "staging"
     dynamodb_table = "tfstate-staging-lock"
     encrypt        = true
   }

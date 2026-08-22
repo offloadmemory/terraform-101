@@ -32,6 +32,11 @@ variable "nat_gateway_count" {
   description = "Number of NAT gateways (minimum 1)"
   type        = number
   default     = 1
+
+  validation {
+    condition     = var.nat_gateway_count >= 1
+    error_message = "nat_gateway_count must be at least 1: private-subnet egress depends on a NAT gateway."
+  }
 }
 
 variable "tags" {
