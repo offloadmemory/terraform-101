@@ -25,7 +25,8 @@ See `docs/SETUP.md` (AWS CLI profiles, costs, teardown) and
     bootstrap → network → database → ecs
 
 Live demo applies `dev` only; `staging` and `prod` are coded and validated.
-See `docs/DEMO-SCRIPT.md` for the narration, `docs/GAPS.md` for the gap table.
+See `docs/DEMO-SCRIPT.md` for the narration, `docs/GAPS.md` for the gap table,
+and `docs/CRITIQUE.md` for an enterprise-scale benchmark of this architecture.
 
 ## Commands
 
