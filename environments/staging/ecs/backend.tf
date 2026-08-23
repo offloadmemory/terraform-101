@@ -1,10 +1,10 @@
 terraform {
   backend "s3" {
-    bucket         = "tfstate-staging"
-    key            = "ecs/terraform.tfstate"
-    region         = "us-east-1"
-    profile        = "staging"
-    dynamodb_table = "tfstate-staging-lock"
-    encrypt        = true
+    bucket       = "tfstate-staging"
+    key          = "ecs/terraform.tfstate"
+    region       = "us-east-1"
+    profile      = "staging"
+    use_lockfile = true
+    encrypt      = true
   }
 }

@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Terraform 1.6+ (verified with 1.13.4)
+- Terraform 1.11+ (verified with 1.13.4) — S3-native state locking needs ≥ 1.11
 - AWS CLI v2
 - Three AWS accounts (or one account reused for all three profiles while
   bootstrapping the demo)
@@ -24,6 +24,11 @@ Create ~/.aws/credentials with three profiles:
 Until real accounts exist, all three profiles may point at the same account —
 the multi-account structure is coded regardless.
 
+The profiles need read/write on the state bucket and its lockfiles — with
+least privilege that is `s3:GetObject`/`s3:PutObject` on the state keys and
+`*.tflock` keys, plus `s3:ListBucket` (no DynamoDB permissions are needed:
+locking is S3-native via a lockfile).
+
 Each component's `backend.tf` and its `terraform_remote_state` data source
 carry an explicit `profile` (dev / staging / prod), so `terraform init` and
 state reads resolve that environment's account directly — no reliance on your
@@ -35,7 +40,8 @@ the single-account stand-in it works unchanged.
     cd environments/bootstrap
     terraform init && terraform apply
 
-Creates tfstate-<env> buckets + lock tables in each account profile.
+Creates the tfstate-<env> state buckets in each account profile. Locking is
+S3-native (a lockfile lives in the bucket), so no DynamoDB table is created.
 
 The bucket names (`tfstate-dev`, `tfstate-staging`, `tfstate-prod`) must be
 globally unique. If bootstrap fails with a `BucketAlreadyExists` /

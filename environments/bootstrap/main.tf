@@ -24,7 +24,6 @@ module "state_dev" {
   }
 
   bucket_name = "tfstate-dev"
-  table_name  = "tfstate-dev-lock"
   region      = "us-east-1"
   tags = {
     Name    = "tfstate-dev"
@@ -41,7 +40,6 @@ module "state_staging" {
   }
 
   bucket_name = "tfstate-staging"
-  table_name  = "tfstate-staging-lock"
   region      = "us-east-1"
   tags = {
     Name    = "tfstate-staging"
@@ -58,7 +56,6 @@ module "state_prod" {
   }
 
   bucket_name = "tfstate-prod"
-  table_name  = "tfstate-prod-lock"
   region      = "us-east-1"
   tags = {
     Name    = "tfstate-prod"

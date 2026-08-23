@@ -4,6 +4,13 @@
 **Status:** Approved (Part 1 scope)
 **Path:** Architectural
 
+> **Amendment (2026-08-23):** state locking migrated to **S3-native
+> `use_lockfile`** (Terraform ≥ 1.11, GA since 1.11). The DynamoDB lock table
+> is removed from `modules/state` and all backends — locking now uses a
+> `<key>.tflock` object in the state bucket via S3 conditional writes. §2,
+> §4.1 and §6 are updated to match; the plan doc is left as the historical
+> record.
+
 ## 1. Purpose & Narrative
 
 A live demonstration of operating Terraform across **multiple AWS accounts** and
@@ -34,7 +41,8 @@ not applied.
 | Modules | Hand-rolled local modules, shared by both acts |
 | Apply scope | All 3 envs coded; **dev** applied live |
 | Directory structure | Environment-centric (`environments/{env}/{component}/`) with a 1:1 Terragrunt mirror planned |
-| Terraform tooling | Terraform 1.x, AWS provider 5.x, HCL only |
+| Terraform tooling | Terraform 1.11+, AWS provider 5.x, HCL only |
+| State locking | S3-native `use_lockfile` (Terraform ≥ 1.11); no DynamoDB |
 
 ## 3. Repository Layout
 
@@ -46,7 +54,7 @@ terraform-101/
 │   ├── DEMO-SCRIPT.md               # act-by-act live walkthrough (narration beats)
 │   └── GAPS.md                      # "Terraform pain → cure" table (Act 2 preview)
 ├── modules/                         # hand-rolled, shared by BOTH acts
-│   ├── state/                       #   S3 backend bucket + DynamoDB lock table
+│   ├── state/                       #   S3 backend bucket (S3-native lockfile)
 │   ├── network/                     #   VPC, subnets, IGW, NAT, route tables, SGs
 │   ├── database/                    #   RDS PostgreSQL + subnet group + SG
 │   └── ecs/                         #   ECS cluster, Fargate svc, task def, ALB
@@ -69,10 +77,10 @@ terraform-101/
 Bootstrap-only module. Creates per-account state backend infrastructure.
 
 - **Resources:** `aws_s3_bucket` (versioned, SSE-S3, block-public-access, bucket
-  policy disallowing http), `aws_s3_bucket_versioning`, `aws_dynamodb_table`
-  (billing_mode `PAY_PER_REQUEST`, `attribute LockID`, hash key `LockID`).
-- **Inputs:** `bucket_name`, `table_name`, `region`, `tags`.
-- **Outputs:** `bucket_name`, `table_name`, `bucket_arn`, `table_arn`.
+  policy disallowing http), `aws_s3_bucket_versioning`. State locking is
+  S3-native (`use_lockfile = true` in every backend) — no DynamoDB table.
+- **Inputs:** `bucket_name`, `region`, `tags`.
+- **Outputs:** `bucket_name`.
 
 ### 4.2 `modules/network`
 The environment network foundation.
@@ -136,8 +144,8 @@ Cross-component data uses `data "terraform_remote_state"`:
 ## 6. State & Apply Order
 
 1. `environments/bootstrap/` — one apply, all three accounts: builds
-   `tfstate-dev|staging|prod` buckets + DynamoDB tables via `modules/state`
-   with three provider aliases.
+   `tfstate-dev|staging|prod` buckets via `modules/state`
+   with three provider aliases (locking is S3-native, so no lock table).
 2. Per environment, apply in dependency order: `network` → `database` → `ecs`.
 3. Nothing can run before bootstrap — the chicken-and-egg to name on stage.
 
