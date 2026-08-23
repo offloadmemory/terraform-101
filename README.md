@@ -17,7 +17,8 @@ follow-on Terragrunt act.
 
 ## Prereqs & setup
 
-See `docs/SETUP.md` (AWS CLI profiles, costs, teardown).
+See `docs/SETUP.md` (AWS CLI profiles, costs, teardown) and
+`docs/ARCHITECTURE.md` (how the repository, state, and environments are organised).
 
 ## Apply order (per environment)
 
