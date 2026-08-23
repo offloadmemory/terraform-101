@@ -1,0 +1,78 @@
+name: terraform-ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: fmt + validate + lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.4
+
+      - name: Terraform fmt (all components + modules)
+        run: terraform fmt --recursive -check
+
+      - name: Terraform validate (all components, no backend)
+        run: |
+          for env in dev staging prod; do
+            for comp in network database ecs; do
+              dir="environments/${env}/${comp}"
+              echo "==> validate ${dir}"
+              (cd "${dir}" && terraform init -backend=false && terraform validate)
+            done
+          done
+          echo "==> validate bootstrap"
+          (cd environments/bootstrap && terraform init -backend=false && terraform validate)
+
+      - name: Terraform validate (module examples)
+        run: |
+          for ex in modules/*/examples/basic; do
+            echo "==> validate ${ex}"
+            (cd "${ex}" && terraform init -backend=false && terraform validate)
+          done
+
+      - name: TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.52.0
+      - run: tflint --recursive --init && tflint --recursive
+
+  plan:
+    name: Terraform plan (optional, needs AWS OIDC)
+    if: false # enable by setting up the OIDC role and flipping this to true
+    needs: validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - env: dev
+            component: network
+          - env: dev
+            component: database
+          - env: dev
+            component: ecs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ">=1.13.0"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::ACCOUNT:role/terraform-plan
+          aws-region: us-east-1
+
+      - name: Terraform plan
+        working-directory: environments/${{ matrix.env }}/${{ matrix.component }}
+        run: terraform init && terraform plan -out=tfplan

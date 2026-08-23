@@ -99,18 +99,19 @@ agnostic at the interface level; version pins live in each workspace's
 
 ## 4. The component layer (a workspace's anatomy)
 
-Each `environments/{env}/{component}/` holds the same six source files (plus a
+Each `environments/{env}/{component}/` holds the same source files (plus a
 committed provider lock file). This is the unit of repeatable boilerplate the
 demo is about.
 
 | File | Role |
 |---|---|
-| `main.tf` | `provider "aws"` (region + profile from vars) + one `module` call. `database`/`ecs` additionally hold a `data "terraform_remote_state"` to pull `network` outputs. |
+| `providers.tf` | `provider "aws"` (region + profile from vars). |
+| `main.tf` | One `module` call. `database`/`ecs` additionally hold a `data "terraform_remote_state"` to pull `network` outputs. |
 | `backend.tf` | **Static, hand-written** `backend "s3"` — bucket, key, region, profile, `use_lockfile`, encryption. Values are literal, never derived. |
-| `variables.tf` | Thin pass-through of the module's inputs. |
+| `variables.tf` | Thin pass-through of the module's inputs, each with `description` + `type`. |
 | `terraform.tfvars` | The actual per-environment values (profile, env_name, CIDRs, DB class, hardening flags). |
-| `outputs.tf` | Re-exposes the module's outputs at the workspace level. |
-| `versions.tf` | `required_version ~> 1.6` + AWS provider `~> 5.0`. |
+| `outputs.tf` | Re-exposes the module's outputs at the workspace level (DB outputs marked `sensitive`). |
+| `terraform.tf` | `required_version ~> 1.11` + AWS provider `~> 5.0`. |
 | `.terraform.lock.hcl` | Provider dependency lock (committed, per convention). |
 
 ### Which files are environment-specific?
@@ -118,9 +119,10 @@ demo is about.
 | File | `dev` vs `staging` vs `prod` |
 |---|---|
 | `main.tf` | **identical** (byte-for-byte) |
+| `providers.tf` | **identical** |
 | `variables.tf` | **identical** |
 | `outputs.tf` | **identical** |
-| `versions.tf` | **identical** |
+| `terraform.tf` | **identical** |
 | `backend.tf` | **differs**: bucket `tfstate-<env>`, `profile = <env>` |
 | `terraform.tfvars` | **differs**: profile, CIDR, database hardening |
 
@@ -128,6 +130,10 @@ This split is the core of the "static, repeated, hand-edited" story: the
 *logic* of each component is one copy reused everywhere, while the *state
 pointer* and *values* are per-environment hand-written files — exactly what
 Terragrunt's `generate` + `remote_state` later synthesize.
+
+> **Note (2026-08):** file names follow the current HashiCorp style guide —
+> `providers.tf` for provider blocks, `terraform.tf` for version pins. Only
+> `backend.tf` and `terraform.tfvars` differ per environment.
 
 ---
 

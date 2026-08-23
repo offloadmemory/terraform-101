@@ -1,21 +1,3 @@
-provider "aws" {
-  alias   = "dev"
-  region  = "us-east-1"
-  profile = "dev"
-}
-
-provider "aws" {
-  alias   = "staging"
-  region  = "us-east-1"
-  profile = "staging"
-}
-
-provider "aws" {
-  alias   = "prod"
-  region  = "us-east-1"
-  profile = "prod"
-}
-
 module "state_dev" {
   source = "../../modules/state"
 
@@ -24,7 +6,6 @@ module "state_dev" {
   }
 
   bucket_name = "tfstate-dev"
-  region      = "us-east-1"
   tags = {
     Name    = "tfstate-dev"
     env     = "dev"
@@ -40,7 +21,6 @@ module "state_staging" {
   }
 
   bucket_name = "tfstate-staging"
-  region      = "us-east-1"
   tags = {
     Name    = "tfstate-staging"
     env     = "staging"
@@ -56,7 +36,6 @@ module "state_prod" {
   }
 
   bucket_name = "tfstate-prod"
-  region      = "us-east-1"
   tags = {
     Name    = "tfstate-prod"
     env     = "prod"

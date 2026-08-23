@@ -1,51 +1,62 @@
 variable "region" {
-  type = string
+  description = "AWS region where the database is deployed"
+  type        = string
 }
 
 variable "profile" {
-  type = string
+  description = "Named AWS CLI profile used to authenticate to the environment account"
+  type        = string
 }
 
 variable "env_name" {
-  type = string
+  description = "Environment name (dev, staging, prod); used as a resource prefix"
+  type        = string
 }
 
 variable "db_name" {
-  type    = string
-  default = "appdb"
+  description = "Name of the database created inside the RDS instance"
+  type        = string
+  default     = "appdb"
 }
 
 variable "instance_class" {
-  type    = string
-  default = "db.t4g.micro"
+  description = "RDS instance class (e.g. db.t4g.micro)"
+  type        = string
+  default     = "db.t4g.micro"
 }
 
 variable "allocated_storage" {
-  type    = number
-  default = 20
+  description = "Allocated storage size in GB"
+  type        = number
+  default     = 20
 }
 
 variable "backup_retention_period" {
-  type    = number
-  default = 1
+  description = "Number of days to retain automated backups"
+  type        = number
+  default     = 1
 }
 
 variable "multi_az" {
-  type    = bool
-  default = false
+  description = "Whether to deploy the database across multiple availability zones"
+  type        = bool
+  default     = false
 }
 
 variable "deletion_protection" {
-  type    = bool
-  default = false
+  description = "Whether to enable deletion protection on the database"
+  type        = bool
+  default     = false
 }
 
 variable "skip_final_snapshot" {
-  type    = bool
-  default = true
+  description = "Whether to skip the final snapshot when the database is destroyed"
+  type        = bool
+  default     = true
 }
 
 variable "tags" {
-  type    = map(string)
-  default = {}
+  description = "Common tags applied to database resources"
+  type        = map(string)
+  default     = {}
 }

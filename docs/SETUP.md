@@ -6,6 +6,8 @@
 - AWS CLI v2
 - Three AWS accounts (or one account reused for all three profiles while
   bootstrapping the demo)
+- Optional, for the quality gates: `pre-commit` (fmt/validate/docs/tflint),
+  `terraform-docs`, `tflint` — see `docs/RESEARCH.md`
 
 ## Named profiles
 
@@ -69,3 +71,12 @@ Fargate ≈ $5). **Destroy after the demo.**
 apply them, `prod/database` has `deletion_protection = true` (by design), so
 `make destroy` will stop at that component — remove the flag in
 `environments/prod/database/terraform.tfvars` and re-run before tearing it down.
+
+## Quality gates (local)
+
+    pre-commit install          # one-time; runs fmt/validate/docs/tflint on every commit
+    pre-commit run --all-files  # run all hooks explicitly
+
+The hooks run `terraform fmt`, `terraform validate` (with `-backend=false`, so
+they need no credentials), `terraform-docs` on `modules/*`, and `tflint`.
+CI runs the same checks on every pull request (`.github/workflows/ci.yml`).

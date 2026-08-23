@@ -3,11 +3,6 @@ variable "bucket_name" {
   type        = string
 }
 
-variable "region" {
-  description = "AWS region for state infrastructure"
-  type        = string
-}
-
 variable "tags" {
   description = "Common tags applied to state resources"
   type        = map(string)

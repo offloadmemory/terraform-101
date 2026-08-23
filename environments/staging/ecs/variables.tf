@@ -1,36 +1,44 @@
 variable "region" {
-  type = string
+  description = "AWS region where the ECS services are deployed"
+  type        = string
 }
 
 variable "profile" {
-  type = string
+  description = "Named AWS CLI profile used to authenticate to the environment account"
+  type        = string
 }
 
 variable "env_name" {
-  type = string
+  description = "Environment name (dev, staging, prod); used as a resource prefix"
+  type        = string
 }
 
 variable "image" {
-  type    = string
-  default = "nginx:alpine"
+  description = "Container image to run in the Fargate service"
+  type        = string
+  default     = "nginx:alpine"
 }
 
 variable "cpu" {
-  type    = string
-  default = "256"
+  description = "CPU units allocated to the Fargate task"
+  type        = string
+  default     = "256"
 }
 
 variable "memory" {
-  type    = string
-  default = "512"
+  description = "Memory (MiB) allocated to the Fargate task"
+  type        = string
+  default     = "512"
 }
 
 variable "desired_count" {
-  type    = number
-  default = 1
+  description = "Desired number of running tasks"
+  type        = number
+  default     = 1
 }
 
 variable "tags" {
-  type    = map(string)
-  default = {}
+  description = "Common tags applied to ECS resources"
+  type        = map(string)
+  default     = {}
 }
