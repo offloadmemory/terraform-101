@@ -8,7 +8,7 @@ resource "aws_db_subnet_group" "this" {
 resource "aws_db_instance" "this" {
   identifier                  = "${var.env}-postgres"
   engine                      = "postgres"
-  engine_version              = "16.4"
+  engine_version              = "16.15"
   instance_class              = var.instance_class
   allocated_storage           = var.allocated_storage
   storage_type                = "gp3"

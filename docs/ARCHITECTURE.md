@@ -123,7 +123,7 @@ demo is about.
 | `variables.tf` | **identical** |
 | `outputs.tf` | **identical** |
 | `terraform.tf` | **identical** |
-| `backend.tf` | **differs**: bucket `tfstate-<env>`, `profile = <env>` |
+| `backend.tf` | **differs**: bucket `tfstate-<env>-kartik-2026`, `profile = <env>` |
 | `terraform.tfvars` | **differs**: profile, CIDR, database hardening |
 
 This split is the core of the "static, repeated, hand-edited" story: the
@@ -146,9 +146,9 @@ components) plus a bootstrap-local state.
 
 ```mermaid
 flowchart TD
-    B["environments/bootstrap/<br/>(local state)"] -->|"applies once, all 3 accounts"| DEV["tfstate-dev bucket"]
-    B -->|"applies once"| STG["tfstate-staging bucket"]
-    B -->|"applies once"| PRD["tfstate-prod bucket"]
+    B["environments/bootstrap/<br/>(local state)"] -->|"applies once, all 3 accounts"| DEV["tfstate-dev-kartik-2026 bucket"]
+    B -->|"applies once"| STG["tfstate-staging-kartik-2026 bucket"]
+    B -->|"applies once"| PRD["tfstate-prod-kartik-2026 bucket"]
 
     N["dev/network"] -->|"key network/terraform.tfstate"| DEV
     D["dev/database"] -->|"key database/terraform.tfstate"| DEV
@@ -160,7 +160,7 @@ Locking is S3-native: alongside each state object the bucket holds a matching
 
 ### Conventions
 
-- **Bucket** `tfstate-<env>` — one bucket per environment (thus per account).
+- **Bucket** `tfstate-<env>-kartik-2026` — one bucket per environment (thus per account).
   Environment isolation is *bucket-level*.
 - **Key** `<component>/terraform.tfstate` — **no env prefix** inside the key.
   The bucket already isolates environments; the key only separates the three
@@ -209,7 +209,7 @@ data "terraform_remote_state" "network" {
   config = {
     bucket         = "tfstate-${var.env_name}"
     key            = "network/terraform.tfstate"
-    region         = "us-east-1"
+    region         = "ap-south-1"
     profile        = var.profile
   }
 }
@@ -263,7 +263,7 @@ sequenceDiagram
     autonumber
     actor Op as Operator
     participant W as environments/dev/network
-    participant S as S3 tfstate-dev
+    participant S as S3 tfstate-dev-kartik-2026
 
     Op->>W: terraform init
     W->>S: read backend (profile=dev)
@@ -301,9 +301,9 @@ account — **each environment is a separate AWS account**, addressed by a named
 CLI profile:
 
 ```
-account dev      ← profile dev      ← bucket tfstate-dev
-account staging  ← profile staging  ← bucket tfstate-staging
-account prod     ← profile prod     ← bucket tfstate-prod
+account dev      ← profile dev      ← bucket tfstate-dev-kartik-2026
+account staging  ← profile staging  ← bucket tfstate-staging-kartik-2026
+account prod     ← profile prod     ← bucket tfstate-prod-kartik-2026
 ```
 
 A single account can stand in for all three during the demo (all profiles
@@ -313,7 +313,7 @@ point is profile-resolved, never ambient.
 ### How to add an environment
 
 1. Copy any environment's directory, e.g. `cp -r dev newenv`.
-2. Rewrite `backend.tf` → bucket `tfstate-newenv`, profile `newenv`,
+2. Rewrite `backend.tf` → bucket `tfstate-newenv-kartik-2026`, profile `newenv`,
    `use_lockfile = true`.
 3. Edit `terraform.tfvars` → profile, `env_name`, CIDR (and any hardening).
 4. Add a `state_<newenv>` module call to `bootstrap/main.tf`; re-apply

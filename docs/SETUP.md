@@ -42,10 +42,10 @@ the single-account stand-in it works unchanged.
     cd environments/bootstrap
     terraform init && terraform apply
 
-Creates the tfstate-<env> state buckets in each account profile. Locking is
+Creates the tfstate-<env>-kartik-2026 state buckets in each account profile. Locking is
 S3-native (a lockfile lives in the bucket), so no DynamoDB table is created.
 
-The bucket names (`tfstate-dev`, `tfstate-staging`, `tfstate-prod`) must be
+The bucket names (`tfstate-dev-kartik-2026`, `tfstate-staging-kartik-2026`, `tfstate-prod-kartik-2026`) must be
 globally unique. If bootstrap fails with a `BucketAlreadyExists` /
 `BucketAlreadyOwnedByYou` error, rename them in `environments/bootstrap/main.tf`
 and the matching `backend.tf` files.

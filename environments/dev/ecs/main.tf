@@ -2,9 +2,9 @@ data "terraform_remote_state" "network" {
   backend = "s3"
 
   config = {
-    bucket  = "tfstate-${var.env_name}"
+    bucket  = "tfstate-${var.env_name}-kartik-2026"
     key     = "network/terraform.tfstate"
-    region  = "us-east-1"
+    region  = "ap-south-1"
     profile = var.profile
   }
 }
