@@ -41,7 +41,9 @@ bootstrap → network → database → ecs
 
 Live demo applies `dev` only; `staging` and `prod` are coded and validated.
 See `docs/DEMO-SCRIPT.md` for the narration, `docs/GAPS.md` for the gap table,
-and `docs/CRITIQUE.md` / `docs/RESEARCH.md` for enterprise-scale benchmarks.
+`docs/ENVIRONMENT-STRATEGY.md` for why environments are directories rather than
+Terraform workspaces, and `docs/CRITIQUE.md` / `docs/RESEARCH.md` for
+enterprise-scale benchmarks.
 
 ## Commands
 
