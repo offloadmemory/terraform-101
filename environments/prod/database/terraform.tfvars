@@ -1,4 +1,4 @@
-region                  = "us-east-1"
+region                  = "ap-south-1"
 profile                 = "prod"
 env_name                = "prod"
 db_name                 = "appdb"

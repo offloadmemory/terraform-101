@@ -10,7 +10,7 @@ module "ecs" {
   source = "../../modules/ecs"
 
   env                = "dev"
-  region             = "us-east-1"
+  region             = "ap-south-1"
   image              = "nginx:alpine"
   cpu                = "256"
   memory             = "512"

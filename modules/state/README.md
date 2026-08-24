@@ -15,7 +15,7 @@ live inside the same bucket, so no DynamoDB is required.
 module "state" {
   source = "../../modules/state"
 
-  bucket_name = "tfstate-dev"
+  bucket_name = "tfstate-dev-kartik-2026"
   tags = {
     env        = "dev"
     project    = "terraform-101-demo"

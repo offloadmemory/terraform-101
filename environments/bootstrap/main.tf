@@ -5,9 +5,9 @@ module "state_dev" {
     aws = aws.dev
   }
 
-  bucket_name = "tfstate-dev"
+  bucket_name = "tfstate-dev-kartik-2026"
   tags = {
-    Name    = "tfstate-dev"
+    Name    = "tfstate-dev-kartik-2026"
     env     = "dev"
     project = "terraform-101-demo"
   }
@@ -20,9 +20,9 @@ module "state_staging" {
     aws = aws.staging
   }
 
-  bucket_name = "tfstate-staging"
+  bucket_name = "tfstate-staging-kartik-2026"
   tags = {
-    Name    = "tfstate-staging"
+    Name    = "tfstate-staging-kartik-2026"
     env     = "staging"
     project = "terraform-101-demo"
   }
@@ -35,9 +35,9 @@ module "state_prod" {
     aws = aws.prod
   }
 
-  bucket_name = "tfstate-prod"
+  bucket_name = "tfstate-prod-kartik-2026"
   tags = {
-    Name    = "tfstate-prod"
+    Name    = "tfstate-prod-kartik-2026"
     env     = "prod"
     project = "terraform-101-demo"
   }
