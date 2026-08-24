@@ -16,6 +16,18 @@ breaks down. Directories are the industry-standard primitive for permanent
 environments; workspaces are the right tool for transient, identical copies of
 one config.
 
+**Overview — the two candidate models:**
+
+```mermaid
+flowchart LR
+    Q{"How do we manage dev / staging / prod?"} --> A["separate directories — environments/{env}/{component}"]
+    Q --> B["terraform workspace — one config, named states"]
+    A --> A1["✓ per-account state, divergence, blast radius, reviewability"]
+    A --> A2["✗ duplicated boilerplate → solved by Terragrunt (Act II)"]
+    B --> B1["✓ zero duplication"]
+    B --> B2["✗ one backend, one config → no per-account state or isolation"]
+```
+
 ---
 
 ## 1. First, disambiguate "workspace"
@@ -30,6 +42,20 @@ The term is overloaded in Terraform, which is the root of most confusion:
 When someone asks "why not use workspaces for environments?", they mean the
 CLI feature: `terraform workspace new dev|staging|prod`.
 
+**The two meanings side by side:**
+
+```mermaid
+flowchart TB
+    subgraph MEAN1["Meaning 1 — HashiCorp 'workspace' (what every directory already is)"]
+        D1["environments/dev/network/"] --> S1["state: network/terraform.tfstate"]
+        D2["environments/prod/network/"] --> S2["state: network/terraform.tfstate"]
+    end
+    subgraph MEAN2["Meaning 2 — terraform workspace (the CLI feature this doc is about)"]
+        ONE["one config — main.tf + backend.tf"] --> W1["workspace 'dev'  → env:/terraform.tfstate"]
+        ONE --> W2["workspace 'prod' → env:/terraform.tfstate"]
+    end
+```
+
 ---
 
 ## 2. The decisive reason: this repo is multi-account
@@ -40,6 +66,20 @@ CLI workspaces live **inside one backend**. Every environment here points at a
 ```
 environments/dev/network/backend.tf     → bucket tfstate-dev-kartik-2026,     profile dev
 environments/prod/network/backend.tf    → bucket tfstate-prod-kartik-2026,    profile prod
+```
+
+**The core contrast — separate backends vs. workspaces inside one backend:**
+
+```mermaid
+flowchart LR
+    subgraph NOW["Directory-per-env (this repo)"]
+        DEV["dev/network/backend.tf"] -->|"bucket=tfstate-dev-kartik-2026, profile=dev"| BDEV["S3 bucket — dev account"]
+        PRD["prod/network/backend.tf"] -->|"bucket=tfstate-prod-kartik-2026, profile=prod"| BPRD["S3 bucket — prod account"]
+    end
+    subgraph WKSP["terraform workspace (structurally impossible here)"]
+        ONE["one backend.tf — one bucket, one profile"] --> WS1["workspace 'dev'  → env:/terraform.tfstate"]
+        ONE --> WS2["workspace 'prod' → env:/terraform.tfstate"]
+    end
 ```
 
 Workspaces cannot express that. The backend (bucket + profile) is fixed per
@@ -64,6 +104,19 @@ that each one has a separate state file" (`RESEARCH.md` §2.1).
 | **Cross-component coupling** | `terraform_remote_state` reads a known bucket+key per env. Deterministic and addressable. | All envs resolve the same data-source graph through one config; coupling gets tangled. |
 | **Duplication** | ✗ **The real cost** — 9 near-identical `backend.tf` + `terraform.tfvars` copies. | ✅ Zero duplication — one `backend.tf`, one config to maintain. |
 
+**Blast radius — the strongest argument, in one picture:**
+
+```mermaid
+flowchart TD
+    subgraph DIR["Directory-per-env — blast radius = one component"]
+        A["terraform apply in dev/database"] -->|"reads + writes only"| S["tfstate-dev-kartik-2026\ndatabase/terraform.tfstate"]
+        S -.->|"untouched"| R["staging + prod state"]
+    end
+    subgraph WS["terraform workspace — blast radius = the whole config"]
+        A2["terraform apply (any workspace)"] -->|"plans all three environments"| S2["dev + staging + prod states"]
+    end
+```
+
 The first five rows are why directory-per-env is the industry standard for
 **permanent** environments. The last row is the standard's honest weakness —
 and it is solved by Terragrunt (Act II), *not* by workspaces (see §6).
@@ -87,16 +140,30 @@ That is exactly why HashiCorp's guidance is nuanced: workspaces for
 *same-config, many-instances*; directories for *different environments you
 intend to keep*.
 
+**Where workspaces shine — identical, ephemeral, disposable:**
+
+```mermaid
+flowchart LR
+    C["one config — e.g. nginx:alpine"] --> P1["workspace preview-1"]
+    C --> P2["workspace preview-2"]
+    C --> P3["workspace preview-3"]
+    P1 -->|"terraform destroy"| G1["(removed)"]
+    P2 -->|"terraform destroy"| G2["(removed)"]
+    P3 -->|"terraform destroy"| G3["(removed)"]
+```
+
 ---
 
 ## 5. Decision rule
 
-```
-Are these environments permanent and meant to diverge / be operated separately?
-├─ YES → directories (one thin root per env & component)
-└─ NO  → are they identical, ephemeral copies of one config?
-        ├─ YES → terraform workspace
-        └─ NO  → separate configurations
+**Decision rule as a flow:**
+
+```mermaid
+flowchart TD
+    Q1{"Permanent env — meant to diverge / operate separately?"} -->|"YES"| D["directories — one thin root per env & component"]
+    Q1 -->|"NO"| Q2{"Identical, ephemeral copies of one config?"}
+    Q2 -->|"YES"| W["terraform workspace"]
+    Q2 -->|"NO"| S["separate configurations"]
 ```
 
 For an enterprise fleet the answer to the first question is almost always
@@ -118,6 +185,20 @@ repo's Act-II plan (`CRITIQUE.md` §7, Phase 2). Terragrunt keeps the
 directory/env model *and* removes the duplication by generating `backend.tf`
 and tfvars from a single `terragrunt.hcl` tree (`include` + `generate` +
 `remote_state`).
+
+**Same directories, boilerplate generated away:**
+
+```mermaid
+flowchart LR
+    subgraph A1["Act 1 — directories, hand-written boilerplate"]
+        B1["dev/network/backend.tf"]
+        B2["staging/network/backend.tf"]
+        B3["prod/network/backend.tf"]
+    end
+    subgraph A2["Act 2 — Terragrunt, generated"]
+        H["terragrunt.hcl — single source"] -->|"generate + remote_state"| G["backend.tf generated per component"]
+    end
+```
 
 | Phase | Model | Blast radius | Duplication | Divergence |
 |---|---|---|---|---|
