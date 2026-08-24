@@ -30,7 +30,8 @@ Each component root follows the HashiCorp file conventions:
 
 ## Prereqs & setup
 
-See `docs/SETUP.md` (AWS CLI profiles, costs, teardown) and
+See `docs/RUNBOOK.md` (apply the whole stack locally from scratch, step by
+step), `docs/SETUP.md` (AWS CLI profiles, costs, teardown) and
 `docs/ARCHITECTURE.md` (how the repository, state, and environments are organised).
 
 ## Apply order (per environment)
