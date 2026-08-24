@@ -30,7 +30,8 @@ Each component root follows the HashiCorp file conventions:
 
 ## Prereqs & setup
 
-See `docs/SETUP.md` (AWS CLI profiles, costs, teardown) and
+See `docs/RUNBOOK.md` (apply the whole stack locally from scratch, step by
+step), `docs/SETUP.md` (AWS CLI profiles, costs, teardown) and
 `docs/ARCHITECTURE.md` (how the repository, state, and environments are organised).
 
 ## Apply order (per environment)
@@ -41,7 +42,9 @@ bootstrap → network → database → ecs
 
 Live demo applies `dev` only; `staging` and `prod` are coded and validated.
 See `docs/DEMO-SCRIPT.md` for the narration, `docs/GAPS.md` for the gap table,
-and `docs/CRITIQUE.md` / `docs/RESEARCH.md` for enterprise-scale benchmarks.
+`docs/ENVIRONMENT-STRATEGY.md` for why environments are directories rather than
+Terraform workspaces, and `docs/CRITIQUE.md` / `docs/RESEARCH.md` for
+enterprise-scale benchmarks.
 
 ## Commands
 
